@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="phpcs-standard">
+  <description>Codestyle ruleset for Drupal template</description>
+
+  <!-- Specify extensions to check. -->
+  <arg name="extensions" value="php,module,inc,install,test,profile,theme,info,yml"/>
+
+  <!-- Set up ignores. -->
+  <config name="ignore_warnings_on_exit" value="0" />
+  <config name="ignore_errors_on_exit" value="0" />
+  <arg name="ignore" value="*.js,*.css,*.scss,*.md,*.txt,*.TTF"/>
+
+  <!-- Specify standards. -->
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <!-- Specify folders. -->
+  <file>./web/modules</file>
+  <exclude-pattern>./web/modules/contrib</exclude-pattern>
+
+  <file>./web/themes</file>
+  <exclude-pattern>./web/themes/contrib</exclude-pattern>
+  <exclude-pattern>./web/themes/custom/*/node_modules/</exclude-pattern>
+
+  <!-- Custom rules -->
+  <rule ref="Drupal.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120"/>
+    </properties>
+  </rule>
+
+</ruleset>

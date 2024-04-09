@@ -1,0 +1,7 @@
+name: drupal-template
+recipe: drupal10
+config:
+  webroot: web
+services:
+  database:
+    type: mariadb
