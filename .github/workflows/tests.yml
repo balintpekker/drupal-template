@@ -4,12 +4,16 @@ on:
   pull_request:
     types: [opened]
 
+env:
+  PHP_VERSION: "8.2"
+  COMPOSER_VERSION: "2.7.2"
+
 jobs:
   checkout-code:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
   setup-php:
     needs: checkout-code
@@ -18,15 +22,35 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2' # PHP version comes from GitHub environment variables.
+          php-version: ${{ env.PHP_VERSION }}
           extensions: imagick # Only installing to show how to enable extensions.
   
   install-dependencies:
     needs: setup-php
     runs-on: ubuntu-latest
     steps:
-      - name: Install dependencies
-        run: composer install # Do we have composer?
+      - name: Composer cache
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            bin
+            vendor
+            docroot/core
+            docroot/libraries
+            docroot/modules/contrib
+            docroot/themes/contrib
+          key: ${{ runner.os }}-php${{ env.PHP_VERSION }}-composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies via composer
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        uses: "php-actions/composer@v6"
+        env:
+          COMPOSER: "composer.json"
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          version: ${{ env.COMPOSER_VERSION }}
+          args: "--ignore-platform-reqs --optimize-autoloader"
 
   run-phpcs:
     needs: install-dependencies
