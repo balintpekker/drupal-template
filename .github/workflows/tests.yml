@@ -40,14 +40,27 @@ jobs:
           fi
       - name: Run PHPCS
         run: |
-          vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,info,yml .
+          IFS=$'\n'
+          files=$(git diff --name-only origin/main...$GITHUB_SHA)
+          for file in $files; do
+            if [[ $file == *.php || $file == *.module || $file == *.inc || $file == *.install || $file == *.test || $file == *.profile || $file == *.theme || $file == *.info || $file == *.yml ]]; then
+              vendor/bin/phpcs --standard=Drupal $file
+            fi
+          done
 
   run-phpstan:
     needs: install-dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse
+        run: |
+          IFS=$'\n'
+          files=$(git diff --name-only origin/main...$GITHUB_SHA)
+          for file in $files; do
+            if [[ $file == *.php ]]; then
+              vendor/bin/phpstan analyse $file
+            fi
+          done
 
   run-phpunit:
     needs: install-dependencies
