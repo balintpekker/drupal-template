@@ -5,30 +5,13 @@ on:
     types: [opened]
 
 env:
-  PHP_VERSION: "8.2"
   COMPOSER_VERSION: "2.7.2"
 
 jobs:
-  checkout-code:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-  setup-php:
-    needs: checkout-code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: imagick # Only installing to show how to enable extensions.
-  
   install-dependencies:
-    needs: setup-php
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Composer cache
         id: composer-cache
         uses: actions/cache@v4
