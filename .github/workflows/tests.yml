@@ -38,16 +38,13 @@ jobs:
       # DrupalPractice standards.
       - name: Run PHPCS on Pull Request Files
         run: |
-<<<<<<< Updated upstream
-          PHPCS_OUTPUT=$(git diff --name-only --diff-filter=ACMR | xargs -r vendor/bin/phpcs --report=checkstyle)
-=======
-          PHPCS_OUTPUT=$(xargs -a files.txt -r vendor/bin/phpcs)
->>>>>>> Stashed changes
+          PHPCS_OUTPUT=$(xargs -a files.txt -r vendor/bin/phpcs --report=checkstyle)
 
           if [ -n "$PHPCS_OUTPUT" ]; then
             echo "$PHPCS_OUTPUT"
             exit 1
           fi
+
   run-phpstan:
     runs-on: ubuntu-latest
     # Disabling the job for Draft pull requests.
