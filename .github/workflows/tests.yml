@@ -10,15 +10,21 @@ env:
   PHPCS_EXTENSION_LIST: "php,module,inc,install,test,profile,theme,info,yml"
 
 jobs:
+  run-phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
+
+      - name: Run unit tests
+        run: $GITHUB_WORKSPACE/vendor/bin/phpunit --testsuite Unit
+
   run-phpcs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout actions
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            .github/actions
-          path: actions
       - uses: ./.github/actions/composer
         id: composer
         with:
@@ -46,21 +52,3 @@ jobs:
             echo "$PHPCS_OUTPUT"
             exit 1
           fi
-
-  run-phpunit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout actions
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            .github/actions
-          path: actions
-      - uses: ./actions/.github/actions/composer
-        id: composer
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          composer_version: ${{ env.COMPOSER_VERSION }}
-
-      - name: Run unit tests
-        run: $GITHUB_WORKSPACE/vendor/bin/phpunit --testsuite Unit
