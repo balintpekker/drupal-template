@@ -10,6 +10,9 @@ Run the initial command:
 |:--------------------------------------------------------------------------------------------------|
 | `git clone git@github.com:balintpekker/drupal-template.git drupal-template && cd drupal-template` |
 
+Prerequisites:
+- [Docker](https://www.docker.com/products/docker-desktop/)
+- [Lando](https://lando.dev/) / [DDev](https://ddev.com/)
 
 You can choose to continue with either Lando or DDEV
 
