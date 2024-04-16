@@ -14,8 +14,8 @@ class ExampleTest extends TestCase {
   /**
    * Asserts that universal laws are constant.
    */
-  public function testExample(): void {
-    $this->assertEquals(1, 1, "One equals one!");
+  public function testExample() {
+    $this->assertEquals(2,1, "One equals one!");
   }
 
 }
