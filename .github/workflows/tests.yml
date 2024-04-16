@@ -33,7 +33,7 @@ jobs:
       # DrupalPractice standards.
       - name: Run PHPCS on Pull Request Files
         run: |
-          PHPCS_OUTPUT=$(git diff --diff-filter=ACMR | xargs -r vendor/bin/phpcs --report=checkstyle)
+          PHPCS_OUTPUT=$(git diff --name-only --diff-filter=ACMR | xargs -r vendor/bin/phpcs --report=checkstyle)
 
           if [ -n "$PHPCS_OUTPUT" ]; then
             echo "$PHPCS_OUTPUT"
