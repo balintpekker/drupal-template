@@ -13,7 +13,17 @@ jobs:
   run-phpcs:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/composer.yml
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/actions
+          path: actions
+      - uses: ./actions/.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
 
       - name: Clear Composer cache
         run: composer clear-cache
@@ -40,7 +50,17 @@ jobs:
   run-phpunit:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/composer.yml
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/actions
+          path: actions
+      - uses: ./actions/.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
 
       - name: Run unit tests
         run: $GITHUB_WORKSPACE/vendor/bin/phpunit --testsuite Unit
