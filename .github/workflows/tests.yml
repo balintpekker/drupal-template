@@ -19,7 +19,7 @@ jobs:
           sparse-checkout: |
             .github/actions
           path: actions
-      - uses: ./actions/.github/actions/composer
+      - uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
