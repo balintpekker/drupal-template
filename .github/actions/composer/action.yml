@@ -14,7 +14,7 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ inputs.php_version }}
-        extension: gd
+        extensions: gd
 
     - name: Validate composer.json
       shell: bash

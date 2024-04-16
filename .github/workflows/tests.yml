@@ -24,7 +24,7 @@ jobs:
           composer_version: ${{ env.COMPOSER_VERSION }}
 
       - name: Run unit tests
-        run: $GITHUB_WORKSPACE/vendor/bin/phpunit --testsuite Unit
+        run: vendor/bin/phpunit --testsuite Unit
 
   run-phpcs:
     runs-on: ubuntu-latest
