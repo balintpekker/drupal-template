@@ -1,8 +1,7 @@
 name: Tests
 
 on:
-  pull_request:
-    types: [opened]
+  push
 
 env:
   PHP_VERSION: "8.2"
