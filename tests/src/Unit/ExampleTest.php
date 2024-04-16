@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\Tests\Unit;
+declare(strict_types = 1);
+
+namespace DrupalTemplate\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 

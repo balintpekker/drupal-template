@@ -6,7 +6,6 @@ on:
 env:
   PHP_VERSION: "8.2"
   COMPOSER_VERSION: "2.7.2"
-  PHPCS_EXTENSION_LIST: "php,module,inc,install,test,profile,theme,info,yml"
 
 jobs:
   run-phpunit:
@@ -17,12 +16,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Using our custom composite action to run composer checks and composer install.
       - uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
 
+      # We are using phpunit.xml.dist from the project root to determine the directory of the 'Unit' testsuite,
+      # in this case 'tests/Unit'.
       - name: Run unit tests
         run: vendor/bin/phpunit --testsuite Unit
 
@@ -34,18 +36,40 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Using our custom composite action to run composer checks and composer install.
       - uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
 
-      # Use git diff command to retrieve the list of changed PHP files in the pull request.
-      - name: Run PHPCS on PR Files
+      # Use git diff command to retrieve the list of changed PHP files in the pull request. The 'ACMR' diff
+      # filter means we want to check Added, Copied, Moved or Renamed files.
+      # We are using phpcs.xml.dist from the project root to determine --extension list, ignores and Drupal,
+      # DrupalPractice standards.
+      - name: Run PHPCS on Pull Request Files
         run: |
-          PHPCS_OUTPUT=$(git diff --name-only --diff-filter=ACMR -- '*.php' | xargs -r vendor/bin/phpcs --report=checkstyle)
+          PHPCS_OUTPUT=$(git diff --diff-filter=ACMR | xargs -r vendor/bin/phpcs --report=checkstyle)
 
           if [ -n "$PHPCS_OUTPUT" ]; then
             echo "$PHPCS_OUTPUT"
             exit 1
           fi
+
+  run-phpstan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Using our custom composite action to run composer checks and composer install.
+      - uses: ./.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
+
+      - name: Run PHPStan analysis
+        run: vendor/bin/phpstan analyse

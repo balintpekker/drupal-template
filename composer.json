@@ -30,6 +30,11 @@
     "scripts": {
         "phpcs": "vendor/bin/phpcs"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "DrupalTemplate\\Tests\\Unit\\": "tests/src/Unit/"
+        }
+    },
     "config": {
         "allow-plugins": {
             "composer/installers": true,
