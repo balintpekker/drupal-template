@@ -22,6 +22,9 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
+      # Clearing cache for autoload_real to be found.
+      - name: Clear Composer cache
+        run: composer clear-cache
 
       - name: Run unit tests
         run: vendor/bin/phpunit --testsuite Unit
@@ -39,6 +42,9 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
+      # Clearing cache for autoload_real to be found.
+      - name: Clear Composer cache
+        run: composer clear-cache
 
       # Use git diff command to retrieve the list of changed PHP files in the pull request.
       - name: Run PHPCS on PR Files
