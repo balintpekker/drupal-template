@@ -7,6 +7,7 @@ on:
 env:
   PHP_VERSION: "8.2"
   COMPOSER_VERSION: "2.7.2"
+  PHPCS_EXTENSION_LIST: "php,module,inc,install,test,profile,theme,info,yml"
 
 jobs:
   setup-php:
@@ -17,12 +18,23 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
-          extensions: imagick # Only installing to show how to enable extensions.
-  
-  install-dependencies:
+
+  composer-validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate composer.json
+        run: composer validate --no-check-all
+
+      - name: Check composer.lock
+        run: |
+          composer install --dry-run
+          if [ $? -ne 0 ]; then
+            echo "composer.lock is out of date. Please run 'composer update' to generate an updated lock file."
+            exit 1
+          fi
+
       - name: Composer cache
         id: composer-cache
         uses: actions/cache@v4
@@ -47,29 +59,37 @@ jobs:
           args: "--ignore-platform-reqs --optimize-autoloader"
 
   run-phpcs:
-    needs: install-dependencies
     runs-on: ubuntu-latest
     steps:
-      - name: Check for PHPCS configuration file
+      - uses: actions/checkout@v4
+
+      - name: Clear Composer cache
+        run: composer clear-cache
+
+      - name: Install PHPCS and Drupal Coder
         run: |
-          if [ ! -f "phpcs.xml.dist" ]; then
-            echo "PHPCS configuration file not found."
+          composer global --no-plugins require "squizlabs/php_codesniffer=*"
+          composer global --no-plugins require "drupal/coder"
+
+      - name: Set PHPCS Standard
+        run: $HOME/.composer/vendor/bin/phpcs --config-set installed_paths $HOME/.composer/vendor/drupal/coder/coder_sniffer/
+
+      # Use git diff command to retrieve the list of changed PHP files in the pull request.
+
+      - name: Run PHPCS on PR Files
+        run: |
+          PHPCS_OUTPUT=$(git diff --name-only --diff-filter=ACMR -- '*.php' | xargs -r $HOME/.composer/vendor/bin/ --standard=Drupal --extensions=${{ env.PHPCS_EXTENSION_LIST }} --report=checkstyle)
+
+          if [ -n "$PHPCS_OUTPUT" ]; then
+            echo "$PHPCS_OUTPUT"
             exit 1
           fi
-      - name: Run PHPCS
-        run: |
-          vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,info,yml .
-
-  run-phpstan:
-    needs: install-dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse
 
   run-phpunit:
-    needs: install-dependencies
     runs-on: ubuntu-latest
+    needs: setup-php
     steps:
-      - name: PHPUnit tests
-        run: vendor/bin/phpunit
+      - name: Install PHPUnit
+        run: composer global --no-plugins require "phpunit/phpunit" --dev
+      - name: Run unit tests
+        run: $HOME/.composer/vendor/bin/phpunit --testsuite Unit
