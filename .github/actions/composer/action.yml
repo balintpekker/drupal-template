@@ -16,6 +16,10 @@ runs:
         php-version: ${{ inputs.php_version }}
         extensions: gd
 
+    - name: Clear Composer cache
+      shell: bash
+      run: composer clear-cache
+
     - name: Validate composer.json
       shell: bash
       run: composer validate --no-check-all

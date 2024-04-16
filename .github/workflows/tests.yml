@@ -40,11 +40,7 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
 
-      - name: Set PHPCS Standard
-        run: $HOME/.composer/vendor/bin/phpcs --config-set installed_paths $HOME/.composer/vendor/drupal/coder/coder_sniffer/
-
       # Use git diff command to retrieve the list of changed PHP files in the pull request.
-
       - name: Run PHPCS on PR Files
         run: |
           PHPCS_OUTPUT=$(git diff --name-only --diff-filter=ACMR -- '*.php' | xargs -r vendor/bin/phpcs --report=checkstyle)
