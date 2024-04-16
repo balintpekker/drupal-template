@@ -8,26 +8,6 @@ env:
   COMPOSER_VERSION: "2.7.2"
 
 jobs:
-  run-phpunit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Using our custom composite action to run composer checks and composer install.
-      - uses: ./.github/actions/composer
-        id: composer
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          composer_version: ${{ env.COMPOSER_VERSION }}
-
-      # We are using phpunit.xml.dist from the project root to determine the directory of the 'Unit' testsuite,
-      # in this case 'tests/Unit'.
-      - name: Run unit tests
-        run: vendor/bin/phpunit --testsuite Unit
-
   run-phpcs:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +35,6 @@ jobs:
             echo "$PHPCS_OUTPUT"
             exit 1
           fi
-
   run-phpstan:
     runs-on: ubuntu-latest
     steps:
@@ -73,3 +52,23 @@ jobs:
 
       - name: Run PHPStan analysis
         run: vendor/bin/phpstan analyse
+
+  run-phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Using our custom composite action to run composer checks and composer install.
+      - uses: ./.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
+
+      # We are using phpunit.xml.dist from the project root to determine the directory of the 'Unit' testsuite,
+      # in this case 'tests/Unit'.
+      - name: Run unit tests
+        run: vendor/bin/phpunit --testsuite Unit
