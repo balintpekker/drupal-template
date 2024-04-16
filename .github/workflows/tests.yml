@@ -59,7 +59,7 @@ jobs:
 
   run-phpcs:
     runs-on: ubuntu-latest
-    needs: setup-php
+    needs: composer-validate
     steps:
 
       - name: Clear Composer cache
@@ -86,9 +86,7 @@ jobs:
 
   run-phpunit:
     runs-on: ubuntu-latest
-    needs: setup-php
+    needs: composer-validate
     steps:
-      - name: Install PHPUnit
-        run: composer global --no-plugins require "phpunit/phpunit" --dev
       - name: Run unit tests
-        run: vendor/bin/phpunit --testsuite Unit
+        run: $GITHUB_WORKSPACE/vendor/bin/phpunit --testsuite Unit
