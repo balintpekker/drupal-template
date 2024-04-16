@@ -17,7 +17,8 @@ jobs:
           fetch-depth: 0
 
       # Using our custom composite action to run composer checks and composer install.
-      - uses: ./.github/actions/composer
+      - name: Composer validate and install
+        uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
@@ -44,7 +45,8 @@ jobs:
           fetch-depth: 0
 
       # Using our custom composite action to run composer checks and composer install.
-      - uses: ./.github/actions/composer
+      - name: Composer validate and install
+        uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
@@ -62,7 +64,8 @@ jobs:
           fetch-depth: 0
 
       # Using our custom composite action to run composer checks and composer install.
-      - uses: ./.github/actions/composer
+      - name: Composer validate and install
+        uses: ./.github/actions/composer
         id: composer
         with:
           php_version: ${{ env.PHP_VERSION }}
