@@ -1,0 +1,64 @@
+name: "Composer"
+inputs:
+  php_version:
+    default: '8.2'
+  composer_version:
+    default: '2'
+runs:
+  using: "composite"
+  steps:
+    setup-php:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+            php-version: ${{ inputs.php_version }}
+            extension: gd
+
+    composer-validate:
+      runs-on: ubuntu-latest
+      needs: setup-php
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Validate composer.json
+          run: composer validate --no-check-all
+
+        - name: Check composer.lock
+          run: |
+            composer install --dry-run
+            if [ $? -ne 0 ]; then
+              echo "composer.lock is out of date. Please run 'composer update' to generate an updated lock file."
+              exit 1
+            fi
+
+    composer-install:
+      runs-on: ubuntu-latest
+      needs: composer-validate
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Composer cache
+          id: composer-cache
+          uses: actions/cache@v4
+          with:
+            path: |
+              bin
+              vendor
+              docroot/core
+              docroot/libraries
+              docroot/modules/contrib
+              docroot/themes/contrib
+            key: ${{ runner.os }}-php${{ inputs.php_version }}-composer-${{ inputs.composer_version }}-${{ hashFiles('**/composer.lock') }}
+
+        - name: Install dependencies via composer
+          if: steps.composer-cache.outputs.cache-hit != 'true'
+          uses: "php-actions/composer@v6"
+          env:
+            COMPOSER: "composer.json"
+          with:
+            php_version: ${{ inputs.php_version }}
+            version: ${{ inputs.composer_version }}
+            args: "--ignore-platform-reqs --optimize-autoloader"
