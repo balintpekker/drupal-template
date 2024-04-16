@@ -11,6 +11,8 @@
         }
     ],
     "require": {
+        "php": ">8.2",
+        "ext-gd": "*",
         "composer/installers": "^2.0",
         "drupal/core-composer-scaffold": "^10.2",
         "drupal/core-project-message": "^10.2",
