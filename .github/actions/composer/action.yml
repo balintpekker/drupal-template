@@ -29,21 +29,7 @@ runs:
           exit 1
         fi
 
-    - name: Composer cache
-      id: composer-cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          bin
-          vendor
-          docroot/core
-          docroot/libraries
-          docroot/modules/contrib
-          docroot/themes/contrib
-        key: ${{ runner.os }}-php${{ inputs.php_version }}-composer-${{ inputs.composer_version }}-${{ hashFiles('**/composer.lock') }}
-
     - name: Install dependencies via composer
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       uses: "php-actions/composer@v6"
       env:
         COMPOSER: "composer.json"
