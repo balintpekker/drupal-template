@@ -1,0 +1,75 @@
+name: Tests
+
+on:
+  pull_request:
+    types: [opened]
+
+env:
+  PHP_VERSION: "8.2"
+  COMPOSER_VERSION: "2.7.2"
+
+jobs:
+  setup-php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: imagick # Only installing to show how to enable extensions.
+  
+  install-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Composer cache
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            bin
+            vendor
+            docroot/core
+            docroot/libraries
+            docroot/modules/contrib
+            docroot/themes/contrib
+          key: ${{ runner.os }}-php${{ env.PHP_VERSION }}-composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies via composer
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        uses: "php-actions/composer@v6"
+        env:
+          COMPOSER: "composer.json"
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          version: ${{ env.COMPOSER_VERSION }}
+          args: "--ignore-platform-reqs --optimize-autoloader"
+
+  run-phpcs:
+    needs: install-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for PHPCS configuration file
+        run: |
+          if [ ! -f "phpcs.xml.dist" ]; then
+            echo "PHPCS configuration file not found."
+            exit 1
+          fi
+      - name: Run PHPCS
+        run: |
+          vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,info,yml .
+
+  run-phpstan:
+    needs: install-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse
+
+  run-phpunit:
+    needs: install-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: PHPUnit tests
+        run: vendor/bin/phpunit
