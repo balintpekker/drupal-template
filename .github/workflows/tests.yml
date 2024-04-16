@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     # Disabling the job for Draft pull requests.
     if: github.event.pull_request.draft == false
+    # Setting GitHub token to use GitHub CLI.
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,23 +30,11 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
 
-      # Use git diff command to retrieve the list of changed PHP files in the pull request.
-      - name: Get modified files
-        id: get_files
-        run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > files.txt
-          cat files.txt
-
       # We are using phpcs.xml.dist from the project root to determine --extension list, ignores and Drupal,
       # DrupalPractice standards.
       - name: Run PHPCS on Pull Request Files
         run: |
-          PHPCS_OUTPUT=$(xargs -a files.txt -r vendor/bin/phpcs --report=checkstyle)
-
-          if [ -n "$PHPCS_OUTPUT" ]; then
-            echo "$PHPCS_OUTPUT"
-            exit 1
-          fi
+          gh pr diff ${{ github.event.number }} --name-only | xargs find 2> /dev/null | xargs vendor/bin/phpcs -nq
 
   run-phpstan:
     runs-on: ubuntu-latest
