@@ -17,9 +17,11 @@ runs:
         extension: gd
 
     - name: Validate composer.json
+      shell: bash
       run: composer validate --no-check-all
 
     - name: Check composer.lock
+      shell: bash
       run: |
         composer install --dry-run
         if [ $? -ne 0 ]; then
