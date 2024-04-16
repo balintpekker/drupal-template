@@ -21,9 +21,8 @@ jobs:
 
   composer-validate:
     runs-on: ubuntu-latest
+    needs: setup-php
     steps:
-      - uses: actions/checkout@v4
-
       - name: Validate composer.json
         run: composer validate --no-check-all
 
@@ -60,8 +59,8 @@ jobs:
 
   run-phpcs:
     runs-on: ubuntu-latest
+    needs: setup-php
     steps:
-      - uses: actions/checkout@v4
 
       - name: Clear Composer cache
         run: composer clear-cache
@@ -92,4 +91,4 @@ jobs:
       - name: Install PHPUnit
         run: composer global --no-plugins require "phpunit/phpunit" --dev
       - name: Run unit tests
-        run: $HOME/.composer/vendor/bin/phpunit --testsuite Unit
+        run: vendor/bin/phpunit --testsuite Unit
