@@ -4,8 +4,8 @@ parameters:
   checkMissingIterableValueType: false
   reportUnmatchedIgnoredErrors: false
   paths:
-    - src
-    - drupal-autoloader.php
+    - web/modules/custom
+    - web/themes/custom
     - tests/src
   excludePaths:
     - tests/src/data/*.php
