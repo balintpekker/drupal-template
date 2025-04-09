@@ -12,6 +12,11 @@ jobs:
   drupal-review:
     name: Drupal Code Review
     runs-on: ubuntu-latest
+    # Disabling the job for Draft pull requests.
+    if: github.event.pull_request.draft == false
+    # Setting GitHub token to use GitHub CLI.
+    env:
+      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout repository
