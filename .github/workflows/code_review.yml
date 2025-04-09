@@ -17,3 +17,26 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          max_files: '20'
+          max_size: '150'
+          comment_threshold: '0.7'
+          analysis_level: 'standard'
+          # model: 'claude-3-5-haiku-20241022'
+          file_patterns: |
+            **/*.php,
+            **/*.module,
+            **/*.install,
+            **/*.theme,
+            **/*.twig,
+            **/*.yml,
+            **/*.yaml
+          exclude_patterns: |
+            **/vendor/**,
+            **/core/**,
+            **/contrib/**,
+            **/node_modules/**,
+            **/dist/**,
+            **/bin/**,
+            **/web/libraries/**,
+            **/sites/default/files/**
+
