@@ -1,0 +1,56 @@
+name: Drupal Code Review Bot
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  drupal-review:
+    name: Drupal Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Using our custom composite action to run composer checks and composer install.
+      - name: Composer validate and install
+        uses: ./.github/actions/composer
+        id: composer
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          composer_version: ${{ env.COMPOSER_VERSION }}
+
+      # Install dependencies needed for the action.
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress
+          composer global require drupal/coder mglaman/phpstan-drupal nunomaduro/phpinsights
+
+      # --- PHPCS ---
+      - name: PHPCS Drupal Standards via Reviewdog
+        uses: reviewdog/action-phpcs@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tool_name: phpcs
+          reporter: github-pr-review
+          level: warning
+          fail_on_error: false
+          phpcs_flags: --standard=Drupal --extensions=php,module,inc,install,test,profile,theme --ignore=*/vendor/* .
+
+      # --- PHPStan ---
+      - name: PHPStan Drupal via Reviewdog
+        uses: reviewdog/action-phpstan@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning
+          fail_on_error: false
+          phpstan_level: 5
+          phpstan_config: phpstan.neon
+
+      # --- PHP Insights ---
+      - name: PHP Insights
+        run: ~/.composer/vendor/bin/phpinsights --no-interaction --format=github-action --dir=modules/custom
