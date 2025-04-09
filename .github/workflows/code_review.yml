@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  PHP_VERSION: "8.4"
+  COMPOSER_VERSION: "2.7.2"
+
 jobs:
   drupal-review:
     name: Drupal Code Review
