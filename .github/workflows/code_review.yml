@@ -29,28 +29,13 @@ jobs:
           composer install --prefer-dist --no-interaction --no-progress
           composer global require drupal/coder mglaman/phpstan-drupal nunomaduro/phpinsights
 
-      # --- PHPCS ---
-      - name: PHPCS Drupal Standards via Reviewdog
-        uses: reviewdog/action-phpcs@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tool_name: phpcs
-          reporter: github-pr-review
-          level: warning
-          fail_on_error: false
-          phpcs_flags: --standard=Drupal --extensions=php,module,inc,install,test,profile,theme --ignore=*/vendor/* .
+      - name: Setup reviewdog
+        run: |
+          mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
+          echo ::add-path::$HOME/bin
 
-      # --- PHPStan ---
-      - name: PHPStan Drupal via Reviewdog
-        uses: reviewdog/action-phpstan@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          level: warning
-          fail_on_error: false
-          phpstan_level: 5
-          phpstan_config: phpstan.neon
-
-      # --- PHP Insights ---
-      - name: PHP Insights
-        run: ~/.composer/vendor/bin/phpinsights --no-interaction --format=github-action --dir=modules/custom
+      - name: Run PHPCS with Reviewdog
+        run: |
+          phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme --ignore=*/vendor/* modules/custom | reviewdog -f=checkstyle -name="PHPCS" -reporter=github-pr-review -level=warning
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
