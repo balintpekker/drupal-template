@@ -1,45 +1,19 @@
-name: Drupal Code Review Bot
-
+name: PR Analysis
 on:
   pull_request:
-    branches: [main]
-
-env:
-  PHP_VERSION: "8.2"
-  COMPOSER_VERSION: "2.7.2"
+    types: [opened, synchronize, reopened]
 
 jobs:
-  drupal-review:
-    name: Drupal Code Review
+  analyze:
     runs-on: ubuntu-latest
-    # Disabling the job for Draft pull requests.
-    if: github.event.pull_request.draft == false
-    # Setting GitHub token to use GitHub CLI.
-    env:
-      GH_TOKEN: ${{ github.token }}
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: AI Pull Request Analysis
+        uses: diekotto/ai-pull-review@v2
         with:
-          fetch-depth: 0
-
-      # Using our custom composite action to run composer checks and composer install.
-      - name: Composer validate and install
-        uses: ./.github/actions/composer
-        id: composer
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          composer_version: ${{ env.COMPOSER_VERSION }}
-
-      - name: Install Reviewdog
-        run: |
-          mkdir -p $HOME/bin
-          curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b $HOME/bin
-          echo "$HOME/bin" >> $GITHUB_PATH
-
-      - name: Run PHPCS with Reviewdog
-        run: |
-          phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme --ignore=*/vendor/* modules/custom | reviewdog -f=checkstyle -name="PHPCS" -reporter=github-pr-review -level=warning
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
