@@ -32,12 +32,6 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           composer_version: ${{ env.COMPOSER_VERSION }}
 
-      # Install dependencies needed for the action.
-      - name: Install dependencies
-        run: |
-          composer install --prefer-dist --no-interaction --no-progress
-          composer global require drupal/coder mglaman/phpstan-drupal nunomaduro/phpinsights
-
       - name: Setup reviewdog
         run: |
           mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
