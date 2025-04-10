@@ -162,7 +162,27 @@ class PRReviewer:
         """Send code to Claude API for review."""
         logger.info(f"Starting code review for: {file_path}")
 
-        prompt = f"""Review this code and respond with ONLY a JSON array of found issues. For each issue include:
+        prompt = f"""You are a senior Drupal developer performing a code review on a pull request.
+
+Your task:
+- Identify code issues, potential bugs, and improvements.
+- Follow official Drupal coding standards: https://www.drupal.org/docs/develop/standards
+- Be constructive and helpful. Focus on **critical** or **architecturally important** improvements.
+- Do **not** flag minor style issues unless they impact readability or maintainability.
+- Respond in clear, actionable language.
+
+Pay special attention to:
+- Proper use of Drupal APIs (e.g., Entity API, Form API, Routing, Render Arrays)
+- Service usage: Use dependency injection where possible, avoid using \Drupal::service() directly unless within procedural code.
+- Security best practices: Never concatenate SQL directly; use the database API or entity queries.
+- YAML files: Validate config/schema format. Ensure permissions and routing definitions are properly declared.
+- Twig templates: Sanitize output using `|escape`, use `t()` for strings where necessary.
+- Naming conventions: Ensure classes, functions, services, and hooks are named consistently with Drupal standards.
+- Avoid hardcoded strings or IDs. Use constants or configuration.
+- Do not repeat logic that already exists in Drupal core/contrib.
+- Ensure PHPDoc and inline comments are useful and up to date.
+
+Review this code and respond with ONLY a JSON array of found issues. For each issue include:
 - line number
 - explanation of the issue
 - concrete code suggestion for improvement
